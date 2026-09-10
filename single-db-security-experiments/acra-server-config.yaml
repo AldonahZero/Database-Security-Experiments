@@ -1,0 +1,66 @@
+# Acra Server 改进配置
+# 方案4: 禁用透明解密模式 + 字段级加密 + 固定长度填充
+
+# 服务器基础配置
+db_host: postgres-acra
+db_port: 5432
+incoming_connection_host: 0.0.0.0
+incoming_connection_port: 9393
+
+# 密钥配置
+keys_dir: /keys
+client_id: attack-client
+
+# 核心改进：禁用透明解密模式
+# 注意：Acra 0.94.0 默认使用透明模式，需要通过配置强制使用显式解密
+# 透明模式会自动解密数据，导致 LENGTH() 等函数作用于明文
+enable_transparent_encryption: false
+
+# 字段级加密配置
+encryptor_config:
+  # 针对 users 表的加密配置
+  - table: users
+    columns:
+      # 密码字段加密配置
+      - column: password
+        client_id: attack-client
+        # 使用 AcraBlock 模式（支持填充）而非 AcraStruct（透明模式）
+        data_type: bytes
+        # 启用填充策略
+        encryptor:
+          type: AcraBlock
+          # AES-256-GCM 加密
+          crypto_envelope:
+            mode: AES_GCM
+            key_length: 256
+          # 固定长度填充策略
+          padding:
+            strategy: fixed
+            # 填充到32字符（加上加密开销后约98字节）
+            target_length: 32
+            # 填充字符（NULL字符）
+            pad_char: "\x00"
+
+      # 如果需要加密邮箱字段，可以添加类似配置
+      # - column: email
+      #   client_id: attack-client
+      #   data_type: bytes
+      #   encryptor:
+      #     type: AcraBlock
+      #     crypto_envelope:
+      #       mode: AES_GCM
+      #       key_length: 256
+      #     padding:
+      #       strategy: bucketed
+      #       buckets: [20, 40, 60]  # 分桶填充
+
+# 审计日志
+audit_log_enable: true
+audit_log_path: /logs/acra_audit.log
+
+# 性能优化
+connection_pool_size: 10
+max_connections: 100
+
+# 安全配置
+tls_client_auth: 0 # 0=不要求客户端证书，1=要求

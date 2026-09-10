@@ -1,0 +1,145 @@
+name: dbsec-exp1-tidb
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "2"
+
+services:
+  pd0:
+    image: pingcap/pd:v8.5.0
+    container_name: exp1_tidb_pd0
+    command:
+      - --name=pd0
+      - --data-dir=/data/pd
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://pd0:2379
+      - --advertise-peer-urls=http://pd0:2380
+      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
+    ports:
+      - "2379:2379"
+    volumes:
+      - exp1_tidb_pd0:/data
+    logging: *default-logging
+    cpus: "1"
+    mem_limit: 1g
+
+  pd1:
+    image: pingcap/pd:v8.5.0
+    container_name: exp1_tidb_pd1
+    command:
+      - --name=pd1
+      - --data-dir=/data/pd
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://pd1:2379
+      - --advertise-peer-urls=http://pd1:2380
+      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
+    volumes:
+      - exp1_tidb_pd1:/data
+    logging: *default-logging
+    cpus: "1"
+    mem_limit: 1g
+
+  pd2:
+    image: pingcap/pd:v8.5.0
+    container_name: exp1_tidb_pd2
+    command:
+      - --name=pd2
+      - --data-dir=/data/pd
+      - --client-urls=http://0.0.0.0:2379
+      - --peer-urls=http://0.0.0.0:2380
+      - --advertise-client-urls=http://pd2:2379
+      - --advertise-peer-urls=http://pd2:2380
+      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
+    volumes:
+      - exp1_tidb_pd2:/data
+    logging: *default-logging
+    cpus: "1"
+    mem_limit: 1g
+
+  tikv0:
+    image: pingcap/tikv:v8.5.0
+    container_name: exp1_tidb_tikv0
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv0:20160
+      - --status-addr=0.0.0.0:20180
+      - --pd=pd0:2379,pd1:2379,pd2:2379
+      - --data-dir=/data/tikv
+    depends_on:
+      - pd0
+      - pd1
+      - pd2
+    volumes:
+      - exp1_tidb_tikv0:/data
+    logging: *default-logging
+    cpus: "2"
+    mem_limit: 4g
+
+  tikv1:
+    image: pingcap/tikv:v8.5.0
+    container_name: exp1_tidb_tikv1
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv1:20160
+      - --status-addr=0.0.0.0:20180
+      - --pd=pd0:2379,pd1:2379,pd2:2379
+      - --data-dir=/data/tikv
+    depends_on:
+      - pd0
+      - pd1
+      - pd2
+    volumes:
+      - exp1_tidb_tikv1:/data
+    logging: *default-logging
+    cpus: "2"
+    mem_limit: 4g
+
+  tikv2:
+    image: pingcap/tikv:v8.5.0
+    container_name: exp1_tidb_tikv2
+    command:
+      - --addr=0.0.0.0:20160
+      - --advertise-addr=tikv2:20160
+      - --status-addr=0.0.0.0:20180
+      - --pd=pd0:2379,pd1:2379,pd2:2379
+      - --data-dir=/data/tikv
+    depends_on:
+      - pd0
+      - pd1
+      - pd2
+    volumes:
+      - exp1_tidb_tikv2:/data
+    logging: *default-logging
+    cpus: "2"
+    mem_limit: 4g
+
+  tidb:
+    image: pingcap/tidb:v8.5.0
+    container_name: exp1_tidb_server
+    command:
+      - --store=tikv
+      - --path=pd0:2379,pd1:2379,pd2:2379
+      - --host=0.0.0.0
+      - --advertise-address=tidb
+    depends_on:
+      - tikv0
+      - tikv1
+      - tikv2
+    ports:
+      - "4000:4000"
+      - "10080:10080"
+    logging: *default-logging
+    cpus: "2"
+    mem_limit: 4g
+
+volumes:
+  exp1_tidb_pd0:
+  exp1_tidb_pd1:
+  exp1_tidb_pd2:
+  exp1_tidb_tikv0:
+  exp1_tidb_tikv1:
+  exp1_tidb_tikv2:

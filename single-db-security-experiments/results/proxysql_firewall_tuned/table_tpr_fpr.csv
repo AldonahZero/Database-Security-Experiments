@@ -1,0 +1,4 @@
+场景,TPR,FPR
+基础 SQL 注入,99.09%,21.14%
+混淆 SQL 注入,97.16%,6.31%
+Stored Procedure CALL,98.22%,10.09%

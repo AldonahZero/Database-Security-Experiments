@@ -1,0 +1,73 @@
+name: dbsec-exp1-postgres-shards
+
+services:
+  pg-shard-0:
+    image: postgres:18.3
+    container_name: exp1_pg_shard_0
+    command: ["postgres", "-c", "max_connections=220", "-c", "shared_buffers=256MB"]
+    environment:
+      POSTGRES_USER: expuser
+      POSTGRES_PASSWORD: exp_pass_123
+      POSTGRES_DB: expdb
+    ports:
+      - "5540:5432"
+    volumes:
+      - exp1_pg_shard_0_data:/var/lib/postgresql
+      - ./scripts/init_postgres_shards.sql:/docker-entrypoint-initdb.d/init_postgres_shards.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expuser -d expdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    cpus: "2"
+    mem_limit: 2g
+    mem_reservation: 1g
+
+  pg-shard-1:
+    image: postgres:18.3
+    container_name: exp1_pg_shard_1
+    command: ["postgres", "-c", "max_connections=220", "-c", "shared_buffers=256MB"]
+    environment:
+      POSTGRES_USER: expuser
+      POSTGRES_PASSWORD: exp_pass_123
+      POSTGRES_DB: expdb
+    ports:
+      - "5541:5432"
+    volumes:
+      - exp1_pg_shard_1_data:/var/lib/postgresql
+      - ./scripts/init_postgres_shards.sql:/docker-entrypoint-initdb.d/init_postgres_shards.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expuser -d expdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    cpus: "2"
+    mem_limit: 2g
+    mem_reservation: 1g
+
+  pg-shard-2:
+    image: postgres:18.3
+    container_name: exp1_pg_shard_2
+    command: ["postgres", "-c", "max_connections=220", "-c", "shared_buffers=256MB"]
+    environment:
+      POSTGRES_USER: expuser
+      POSTGRES_PASSWORD: exp_pass_123
+      POSTGRES_DB: expdb
+    ports:
+      - "5542:5432"
+    volumes:
+      - exp1_pg_shard_2_data:/var/lib/postgresql
+      - ./scripts/init_postgres_shards.sql:/docker-entrypoint-initdb.d/init_postgres_shards.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expuser -d expdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    cpus: "2"
+    mem_limit: 2g
+    mem_reservation: 1g
+
+volumes:
+  exp1_pg_shard_0_data:
+  exp1_pg_shard_1_data:
+  exp1_pg_shard_2_data:

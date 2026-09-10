@@ -1,0 +1,11 @@
+config,operation,operation_type,attempts,success_count,success_rate,permission_denied_count,error_count,avg_latency_ms,avg_cpu_percent
+privileged,normal_select,legitimate,500,500,100.0,0,0,0.348340588,25.851875
+privileged,sensitive_select,unauthorized_read,500,500,100.0,0,0,0.340346434,25.851875
+privileged,sensitive_update,unauthorized_write,500,500,100.0,0,0,0.395341006,25.851875
+privileged,sensitive_delete,unauthorized_delete,500,500,100.0,0,0,0.344382192,25.851875
+privileged,privilege_escalation,privilege_escalation,500,500,100.0,0,0,0.259901598,25.851875
+rbac_min_privilege,normal_select,legitimate,500,500,100.0,0,0,0.336133828,27.51705882352941
+rbac_min_privilege,sensitive_select,unauthorized_read,500,0,0.0,500,0,0.64495124,27.51705882352941
+rbac_min_privilege,sensitive_update,unauthorized_write,500,0,0.0,500,0,0.767825674,27.51705882352941
+rbac_min_privilege,sensitive_delete,unauthorized_delete,500,0,0.0,500,0,0.732196494,27.51705882352941
+rbac_min_privilege,privilege_escalation,privilege_escalation,500,0,0.0,500,0,0.389658178,27.51705882352941

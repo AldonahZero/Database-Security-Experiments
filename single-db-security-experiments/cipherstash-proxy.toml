@@ -1,0 +1,22 @@
+[proxy]
+bind_addr = "0.0.0.0:7432"
+enable_tls = false
+disable_client_auth = true
+
+[auth]
+workspace_id = "DGDDUX4XBGXYTXNT"
+workspace_crn = "crn:ap-southeast-2.aws:JTJAVGO74RKC67SU"
+client_access_key = "CSAKDGDDUX4XBGXYTXNT.GQOXFARJJFI54L5QIYCWLNFKOAZKXJY6UJRP3EPTWPAXM3GA"
+
+[encrypt]
+client_id = "732f8ce4-a0a8-43ca-81d5-acd4520949e7"
+client_key = "a4627031a16b7065726d75746174696f6e9001050e0d0f0c0a080604070b030009026770325f66726f6da16b7065726d75746174696f6e9004080e05090f0b01060d0a070003020c6570325f746fa16b7065726d75746174696f6e90040d0b0f090205000a080c0e01030607627033a16b7065726d75746174696f6e98211708181907181e1818021101181d181f10130f0e0b030515120c0406181a140a181c160d091820181b00"
+default_keyset_id = "26517927-93a0-4cb6-96c5-ce81c2dbba87"
+
+[database]
+host = "postgres-cipherstash"
+port = 5432
+username = "cipherstash"
+password = "cipherstashpass"
+name = "cipherstash_db"
+install_example_schema = true

@@ -1,0 +1,11 @@
+场景,阶段,重复次数,观测Leader存储节点ID,初始目标Leader节点,当前热点Leader节点,Leader变更观测占比(%),Leader变更观测占比(%)标准差,Leader变更观测占比(%)95%置信区间半宽
+正常基线,正常期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力,正常期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力,扰动期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力,恢复期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader节点暂停,正常期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader节点暂停,扰动期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader节点暂停,恢复期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力+应用侧限流,正常期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力+应用侧限流,扰动期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0
+Leader CPU压力+应用侧限流,恢复期,5,3,TiKV节点1,TiKV节点1,0.0,0.0,0.0

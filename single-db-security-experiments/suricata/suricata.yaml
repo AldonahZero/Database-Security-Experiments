@@ -1,0 +1,85 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "[10.0.0.0/8,172.16.0.0/12,192.168.0.0/16]"
+  port-groups:
+    HTTP_PORTS: "80,8080,8081"
+    SQL_PORTS: "5432,5433"
+
+default-log-dir: /var/log/suricata
+
+logging:
+  default-log-level: info
+
+rule-files:
+  - sql-injection.rules
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - http:
+            extended: yes
+            request-body: yes
+            response-body: no
+            request-headers:
+              - Host
+              - User-Agent
+              - X-Bypass-WAF
+        - dns
+        - tls
+        - flow
+        - stats
+  - fast-log:
+      enabled: yes
+      filename: fast.log
+  - stats:
+      enabled: yes
+      filename: stats.log
+      interval: 60
+
+threading:
+  set-cpu-affinity: no
+  detect-thread-ratio: 0.25
+  detect-thread-count: 1
+
+flow:
+  memcap: 128mb
+  prealloc: 4096
+  emergency-recover: 30
+
+stream:
+  memcap: 256mb
+  prealloc-sessions: 4096
+  reassembly:
+    memcap: 128mb
+
+defrag:
+  memcap: 32mb
+
+default-rule-path: /var/lib/suricata/rules
+
+# Minimal detection engine tuning
+engine-analysis:
+  rules-fast-pattern: yes
+
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+          request-body-minimal-inspect-size: 32kb
+          response-body-minimal-inspect-size: 32kb
+          response-body-decompress-layer-limit: 2
+
+# Disable checksum verification in container env
+checksums:
+  check-all: no

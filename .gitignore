@@ -1,0 +1,84 @@
+# Python environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local secrets and generated key material
+.env
+.env.*
+**/.env
+**/.env.*
+acra_keys/
+single-db-security-experiments/acra_keys/
+
+# Local-only documents. Keep only the two repository landing READMEs tracked.
+docs/
+*.md
+*.markdown
+*.md.bak
+*.rst
+*.adoc
+*.tex
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.txt
+!/README.md
+!/README_ZH.md
+
+# Python build/cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Logs and temporary files
+logs/
+tmp/
+*.log
+
+# Local platform metadata
+.cloudbase/
+
+# Large raw result files
+distributed-db-security-experiments/results/raw/
+single-db-security-experiments/results/logs/
+single-db-security-experiments/results/modsecurity/
+single-db-security-experiments/results/suricata/eve.json
+single-db-security-experiments/results/suricata/eve.json.bak
+single-db-security-experiments/results/suricata/stats.log
+single-db-security-experiments/results/proxysql_firewall_tuned/summary.json
+
+# Keep only the paper-facing ProxySQL firewall summary and table.  Raw
+# requests, datasets, logs, rule snapshots, and other generated intermediates
+# remain available locally but are not included in Git status/pushes.
+single-db-security-experiments/results/proxysql_firewall_tuned/*
+!single-db-security-experiments/results/proxysql_firewall_tuned/summary.json
+!single-db-security-experiments/results/proxysql_firewall_tuned/table_tpr_fpr.csv

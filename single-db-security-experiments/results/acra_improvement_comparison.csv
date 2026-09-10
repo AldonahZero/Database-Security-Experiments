@@ -1,0 +1,3 @@
+environment,total_records,pwd_min,pwd_max,pwd_mean,pwd_unique,pwd_leakage,pwd_entropy,email_unique
+Acra原始模式（透明加密）,150,8,17,11.346666666666666,10,Low-Medium,-0.8354666666666667,14
+Acra改进方案（固定填充32字符）,150,98,98,98,1,Low (理想状态),0.0,14

@@ -1,0 +1,234 @@
+services:
+  juiceshop:
+    image: bkimminich/juice-shop:v11.1.0
+    ports:
+      - "3001:3000" # Juice Shop UI 端口保持不变
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+
+  postgres-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: juiceshop_db
+    ports:
+      - "5433:5432" # 变更: 主机端口改为5433，容器内部依然是5432
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+
+  mongo-db:
+    image: mongo:4
+    ports:
+      - "27018:27017" # 变更: 主机端口改为27018，容器内部依然是27017
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+
+  postgres-acra:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: acrauser
+      POSTGRES_PASSWORD: acra_password123
+      POSTGRES_DB: acra_db
+    ports:
+      - "5434:5432"
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+    volumes:
+      - postgres_acra_data:/var/lib/postgresql/data
+
+  acra-keymaker:
+    image: cossacklabs/acra-keymaker:0.94.0
+    environment:
+      ACRA_MASTER_KEY: MDEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkNERUY=
+    command:
+      - "--client_id=attack-client"
+      - "--keys_output_dir=/keys"
+      - "--generate_acrastruct_storage_key"
+    depends_on:
+      - postgres-acra
+    volumes:
+      - ./acra_keys:/keys
+    restart: "no"
+
+  acra-server:
+    image: cossacklabs/acra-server:0.94.0
+    environment:
+      ACRA_MASTER_KEY: MDEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkNERUY=
+    depends_on:
+      - postgres-acra
+      - acra-keymaker
+    ports:
+      - "9393:9393"
+    command:
+      - "--keys_dir=/keys"
+      - "--db_host=postgres-acra"
+      - "--db_port=5432"
+      - "--incoming_connection_host=0.0.0.0"
+      - "--incoming_connection_port=9393"
+      - "--client_id=attack-client"
+      # 尝试禁用透明加密（如果版本支持）
+      # 注意: Acra 0.94.0 可能不支持以下参数，这是概念性配置
+      # - "--encryptor_config=/config/acra-server-config.yaml"
+    volumes:
+      - ./acra_keys:/keys:ro
+      - ./acra-server-config.yaml:/config/acra-server-config.yaml:ro
+    cpus: 2
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  # pgcrypto: PostgreSQL 内置加密扩展
+  postgres-pgcrypto:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: pgcrypto
+      POSTGRES_PASSWORD: pgcrypto_pass
+      POSTGRES_DB: pgcrypto_db
+    ports:
+      - "5435:5432"
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+    volumes:
+      - postgres_pgcrypto_data:/var/lib/postgresql/data
+      - ./init-pgcrypto.sql:/docker-entrypoint-initdb.d/init-pgcrypto.sql:ro
+
+  # 保留但停止的 CipherStash 容器
+  postgres-cipherstash:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: cipherstash
+      POSTGRES_PASSWORD: cipherstashpass
+      POSTGRES_DB: cipherstash_db
+    ports:
+      - "5436:5432"
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+    volumes:
+      - postgres_cipherstash_data:/var/lib/postgresql/data
+    profiles:
+      - disabled
+
+  cipherstash-proxy:
+    image: cipherstash/proxy:latest
+    environment:
+      CS_DATABASE__HOST: postgres-cipherstash
+      CS_DATABASE__PORT: "5432"
+      CS_DATABASE__USERNAME: cipherstash
+      CS_DATABASE__PASSWORD: cipherstashpass
+      CS_DATABASE__NAME: cipherstash_db
+      CS_DATABASE__INSTALL_EXAMPLE_SCHEMA: "true"
+    volumes:
+      - ./cipherstash-proxy.toml:/cipherstash-proxy.toml:ro
+    depends_on:
+      - postgres-cipherstash
+    ports:
+      - "7432:6432"
+    cpus: 2
+    mem_limit: 4g
+    mem_reservation: 2g
+    profiles:
+      - disabled
+
+  vuln-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.vuln
+    environment:
+      FLASK_ENV: production
+    depends_on:
+      - postgres-db
+      - mongo-db
+    expose:
+      - "8081"
+    cpus: 2
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  modsecurity:
+    build:
+      context: .
+      dockerfile: Dockerfile.modsecurity
+    image: local-modsecurity:latest
+    container_name: modsecurity_waf
+    restart: always
+    depends_on:
+      - vuln-api
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./results/modsecurity:/var/log/modsecurity
+      - ./results/modsecurity/nginx:/var/log/nginx
+    environment:
+      # 这是关键：通过环境变量告诉启动脚本，后端的地址是什么
+      - BACKEND=http://vuln-api:8081
+      # 这是新增的关键一行：告诉启动脚本在Nginx配置中加入resolver指令
+      - RESOLVER=127.0.0.11
+      # 告诉Nginx在找不到后端时不退出
+      - PROXY_UPSTREAM_CHECK=false
+      # 可以在这里设置其他ModSecurity变量，例如日志级别
+      - LOG_LEVEL=info
+    cpus: 2
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  suricata:
+    build:
+      context: .
+      dockerfile: Dockerfile.suricata
+    image: local-suricata:latest
+    network_mode: "service:modsecurity"
+    command: [ "suricata", "-c", "/etc/suricata/suricata.yaml", "-i", "eth0" ]
+    depends_on:
+      - vuln-api
+      - modsecurity
+    volumes:
+      - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
+      - ./suricata/rules:/var/lib/suricata/rules:ro
+      - ./results/suricata:/var/log/suricata
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    cpus: 2
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  # 我们的攻击和测试客户端
+  attack-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: db-security-attack-client:latest
+    tty: true # 保持容器运行以便我们进入
+    command: /bin/bash
+    depends_on:
+      - juiceshop
+      - postgres-db
+      - mongo-db
+      - modsecurity
+      - suricata
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./results/modsecurity:/var/log/modsecurity:ro
+      - ./results/suricata:/var/log/suricata
+      - ./results:/workspace/results
+      - ./acra_keys:/workspace/acra_keys:ro
+    cpus: 4
+    mem_limit: 8g
+    mem_reservation: 6g
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  postgres_acra_data:
+  postgres_pgcrypto_data:
+  postgres_cipherstash_data:

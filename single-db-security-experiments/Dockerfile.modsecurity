@@ -1,0 +1,24 @@
+FROM owasp/modsecurity-crs:nginx
+
+USER root
+
+# 覆盖默认配置以指向我们的后端 vuln-api 服务
+COPY modsecurity/include.conf /etc/nginx/modsecurity.d/include.conf
+COPY modsecurity/bypass-rules.conf /etc/nginx/modsecurity.d/bypass-rules.conf
+COPY modsecurity/custom-rules.conf /etc/nginx/modsecurity.d/custom-rules.conf
+COPY modsecurity/modsecurity-override.conf /etc/modsecurity.d/modsecurity-override.conf
+COPY modsecurity/default.conf /etc/nginx/conf.d/default.conf
+COPY modsecurity/default.conf /etc/nginx/templates/conf.d/default.conf.template
+COPY modsecurity/includes/proxy_backend.conf /etc/nginx/includes/proxy_backend.conf
+COPY modsecurity/includes/proxy_backend.conf /etc/nginx/templates/includes/proxy_backend.conf.template
+COPY modsecurity/modsecurity-override.conf /etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+COPY modsecurity/bypass-rules.conf /etc/nginx/templates/modsecurity.d/bypass-rules.conf.template
+COPY modsecurity/entrypoint.sh /docker-entrypoint.d/10-fix-perms.sh
+
+# 调整权限，便于默认 nginx 用户在启动脚本中写入模板生成的配置
+RUN chown -R nginx:nginx /etc/nginx/modsecurity.d /etc/nginx/conf.d \
+    && chmod +x /docker-entrypoint.d/10-fix-perms.sh
+
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]

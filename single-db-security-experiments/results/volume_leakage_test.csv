@@ -1,0 +1,4 @@
+environment,total_records,password_min_len,password_max_len,password_mean_len,password_unique_lengths,password_leakage_level,password_entropy,email_min_len,email_max_len,email_mean_len,email_unique_lengths,email_leakage_level,email_entropy
+baseline,150,8,17,11.35,10,Low-Medium（少量长度变化）,-0.3940,15,29,22.19,14,Low-Medium（少量长度变化）,-0.3416
+acra,150,8,17,11.35,10,Low-Medium（少量长度变化）,-0.3940,15,29,22.19,14,Low-Medium（少量长度变化）,-0.3416
+pgcrypto,150,74,83,77.35,10,Low-Medium（少量长度变化）,-0.3940,15,29,22.19,14,Low-Medium（少量长度变化）,-0.3416

@@ -1,0 +1,58 @@
+name: dbsec-exp1-citus
+
+x-citus-common: &citus-common
+  image: citusdata/citus:12.1.6
+  environment:
+    POSTGRES_USER: expuser
+    POSTGRES_PASSWORD: exp_pass_123
+    POSTGRES_DB: expdb
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "2"
+
+services:
+  citus-coordinator:
+    <<: *citus-common
+    container_name: exp1_citus_coordinator
+    ports:
+      - "5437:5432"
+    volumes:
+      - exp1_citus_coordinator:/var/lib/postgresql/data
+    cpus: "2"
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  citus-worker-0:
+    <<: *citus-common
+    container_name: exp1_citus_worker_0
+    volumes:
+      - exp1_citus_worker_0:/var/lib/postgresql/data
+    cpus: "2"
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  citus-worker-1:
+    <<: *citus-common
+    container_name: exp1_citus_worker_1
+    volumes:
+      - exp1_citus_worker_1:/var/lib/postgresql/data
+    cpus: "2"
+    mem_limit: 4g
+    mem_reservation: 2g
+
+  citus-worker-2:
+    <<: *citus-common
+    container_name: exp1_citus_worker_2
+    volumes:
+      - exp1_citus_worker_2:/var/lib/postgresql/data
+    cpus: "2"
+    mem_limit: 4g
+    mem_reservation: 2g
+
+volumes:
+  exp1_citus_coordinator:
+  exp1_citus_worker_0:
+  exp1_citus_worker_1:
+  exp1_citus_worker_2:

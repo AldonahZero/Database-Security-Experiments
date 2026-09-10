@@ -1,0 +1,4 @@
+environment,injection_success_rate,records_stolen,password_field_readable,password_protection,email_field_readable,email_protection
+baseline,100.0,150,Plaintext,None,Plaintext,None
+acra,100.0,150,Plaintext（透明解密）,None,Plaintext（透明解密）,None
+pgcrypto,100.0,150,Encrypted,High,Plaintext,None

@@ -1,0 +1,7 @@
+tool,scenario,tpr_percent,fpr_percent,malicious_samples,benign_samples,extra
+ModSecurity (OWASP CRS),基础SQL注入,97.3,1.3,150,150,"{""blocked_malicious"": 146, ""blocked_benign"": 2}"
+Suricata (SQL规则集),基础SQL注入,96.7,2.0,150,150,"{""alerts_malicious"": 290, ""alerts_benign"": 6}"
+ModSecurity (OWASP CRS),混淆SQL注入,95.3,0.7,150,150,"{""blocked_malicious"": 143, ""blocked_benign"": 1}"
+Suricata (SQL规则集),混淆SQL注入,97.3,1.3,150,150,"{""alerts_malicious"": 292, ""alerts_benign"": 4}"
+ModSecurity (OWASP CRS),存储过程调用,96.0,2.7,150,150,"{""blocked_malicious"": 144, ""blocked_benign"": 4}"
+Suricata (SQL规则集),存储过程调用,95.3,0.7,150,150,"{""alerts_malicious"": 286, ""alerts_benign"": 2}"

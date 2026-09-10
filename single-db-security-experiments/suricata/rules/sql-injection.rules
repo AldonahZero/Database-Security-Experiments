@@ -1,0 +1,4 @@
+alert http any any -> any any (msg:"SQLi boolean OR numeric tautology"; flow:to_server; http.uri; content:"or"; nocase; pcre:"/id=.*or.*1=1/i"; classtype:web-application-attack; sid:100001; rev:7;)
+alert http any any -> any any (msg:"SQLi boolean OR string tautology"; flow:to_server; http.uri; content:"or"; nocase; pcre:"/id=.*or.*'1'='1/i"; classtype:web-application-attack; sid:100002; rev:7;)
+alert http any any -> any any (msg:"SQLi stored procedure pg_sleep"; flow:to_server; http.uri; content:"pg_sleep"; nocase; pcre:"/pg_sleep/i"; classtype:web-application-attack; sid:100003; rev:4;)
+alert http any any -> any any (msg:"Test URI match"; flow:to_server; http.uri; content:"/pg/users"; classtype:attempted-recon; sid:199999; rev:1;)

@@ -1,0 +1,76 @@
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: juiceshop_db
+    ports:
+      - "15432:5432"
+    cpus: 4
+    mem_limit: 8g
+    memswap_limit: 8g
+    mem_reservation: 6g
+    volumes:
+      - proxysql_firewall_pg_data:/var/lib/postgresql/data
+      - ./proxysql-firewall/proxysql-init.sql:/docker-entrypoint-initdb.d/00-proxysql-firewall.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U youruser -d juiceshop_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  proxysql:
+    image: proxysql/proxysql:3.0.11
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    ports:
+      - "15433:6133"
+      - "16132:6032"
+    cpus: 2
+    mem_limit: 4g
+    memswap_limit: 4g
+    mem_reservation: 2g
+
+  baseline-api:
+    build:
+      context: ./proxysql-firewall
+      dockerfile: Dockerfile
+    environment:
+      PGHOST: postgres-db
+      PGPORT: "5432"
+      PGDATABASE: juiceshop_db
+      PGUSER: youruser
+      PGPASSWORD: password123
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    ports:
+      - "18080:8081"
+    cpus: 2
+    mem_limit: 4g
+    memswap_limit: 4g
+    mem_reservation: 2g
+
+  firewall-api:
+    build:
+      context: ./proxysql-firewall
+      dockerfile: Dockerfile
+    environment:
+      PGHOST: proxysql
+      PGPORT: "6133"
+      PGDATABASE: juiceshop_db
+      PGUSER: youruser
+      PGPASSWORD: password123
+    depends_on:
+      - proxysql
+    ports:
+      - "18081:8081"
+    cpus: 2
+    mem_limit: 4g
+    memswap_limit: 4g
+    mem_reservation: 2g
+
+volumes:
+  proxysql_firewall_pg_data:

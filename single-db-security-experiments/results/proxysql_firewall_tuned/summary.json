@@ -1,0 +1,153 @@
+{
+  "experiment": "PostgreSQL 13 + ProxySQL Database Firewall",
+  "proxysql_version": "3.0.11",
+  "proxysql_image_digest": "sha256:0e95d1b7cc32f1de7923ffbf6cc4ba658874a6f6a6b7c2cdfdc6444304c13caf",
+  "postgresql_version": "13",
+  "rule_sha256": "51bec9824f538b09787d30b0fd99f33a64cfa89f8b6ff20b3bd5fff74d94245f",
+  "dataset_sha256": "d8fbc3823bec3d4a96bf04ae1c88d88fa27f80cff423bf6e4911547c857a784d",
+  "listener_port_container": 6133,
+  "listener_port_host": 15433,
+  "backend_port_container": 5432,
+  "backend_port_host": 15432,
+  "admin_port_container": 6032,
+  "admin_port_host": 16132,
+  "repeats": 1,
+  "generated_unique": 1902,
+  "smoke_test": {
+    "ordinary_sql_status": 200,
+    "ordinary_sql_ok": true,
+    "baseline_safe_reset_status": 200,
+    "protected_safe_reset_status": 200,
+    "safe_call_status": 200,
+    "safe_call_ok": true,
+    "safe_call_marker": 1,
+    "baseline_sensitive_status": 200,
+    "baseline_sensitive_ok": true,
+    "baseline_sensitive_marker": 1,
+    "protected_sensitive_status": 500,
+    "protected_sensitive_error_type": "firewall_deny",
+    "protected_sensitive_firewall_blocked": true,
+    "protected_sensitive_marker": 0,
+    "protected_state_status": 200,
+    "protected_state": {
+      "call_marker": 0,
+      "sensitive_marker": 0
+    },
+    "rule_stats_after_smoke": [
+      {
+        "rule_id": 10,
+        "hits": 0
+      },
+      {
+        "rule_id": 11,
+        "hits": 0
+      },
+      {
+        "rule_id": 20,
+        "hits": 0
+      }
+    ],
+    "reset_responses_ok": true
+  },
+  "rule_hits": [
+    {
+      "rule_id": 10,
+      "hits": 544
+    },
+    {
+      "rule_id": 11,
+      "hits": 168
+    },
+    {
+      "rule_id": 20,
+      "hits": 350
+    }
+  ],
+  "scenes": [
+    {
+      "scene": "basic_sql_injection",
+      "malicious_unique": 317,
+      "legitimate_unique": 317,
+      "eligible_malicious_unique": 317,
+      "eligible_legitimate_unique": 317,
+      "repeats": 1,
+      "TP": 317,
+      "FN": 0,
+      "FP": 67,
+      "TN": 250,
+      "TPR": 1.0,
+      "FPR": 0.2113564668769716,
+      "request_TP": 317,
+      "request_FN": 0,
+      "request_FP": 67,
+      "request_TN": 250,
+      "request_TPR": 1.0,
+      "request_FPR": 0.2113564668769716,
+      "parser_errors": 0,
+      "protocol_errors": 0,
+      "connection_errors": 0,
+      "sql_syntax_errors": 0,
+      "other_errors": 0,
+      "unstable_unique_requests": 0,
+      "baseline_invalid_malicious": [],
+      "baseline_invalid_legitimate": []
+    },
+    {
+      "scene": "obfuscated_sql_injection",
+      "malicious_unique": 317,
+      "legitimate_unique": 317,
+      "eligible_malicious_unique": 317,
+      "eligible_legitimate_unique": 317,
+      "repeats": 1,
+      "TP": 308,
+      "FN": 9,
+      "FP": 20,
+      "TN": 297,
+      "TPR": 0.9716088328075709,
+      "FPR": 0.06309148264984227,
+      "request_TP": 308,
+      "request_FN": 9,
+      "request_FP": 20,
+      "request_TN": 297,
+      "request_TPR": 0.9716088328075709,
+      "request_FPR": 0.06309148264984227,
+      "parser_errors": 0,
+      "protocol_errors": 0,
+      "connection_errors": 0,
+      "sql_syntax_errors": 0,
+      "other_errors": 0,
+      "unstable_unique_requests": 0,
+      "baseline_invalid_malicious": [],
+      "baseline_invalid_legitimate": []
+    },
+    {
+      "scene": "stored_procedure_call",
+      "malicious_unique": 317,
+      "legitimate_unique": 317,
+      "eligible_malicious_unique": 317,
+      "eligible_legitimate_unique": 317,
+      "repeats": 1,
+      "TP": 317,
+      "FN": 0,
+      "FP": 32,
+      "TN": 285,
+      "TPR": 1.0,
+      "FPR": 0.10094637223974763,
+      "request_TP": 317,
+      "request_FN": 0,
+      "request_FP": 32,
+      "request_TN": 285,
+      "request_TPR": 1.0,
+      "request_FPR": 0.10094637223974763,
+      "parser_errors": 0,
+      "protocol_errors": 0,
+      "connection_errors": 0,
+      "sql_syntax_errors": 0,
+      "other_errors": 0,
+      "unstable_unique_requests": 0,
+      "baseline_invalid_malicious": [],
+      "baseline_invalid_legitimate": []
+    }
+  ],
+  "completed_utc": "2026-09-15T13:55:50.191367+00:00"
+}
